@@ -1,0 +1,101 @@
+#+title: README
+
+* Trivy
+** Instalação
+1. Obter tarball contendo binário do Trivy
+   #+begin_src sh
+wget https://github.com/aquasecurity/trivy/releases/download/v0.53.0/trivy_0.53.0_Linux-64bit.tar.gz
+   #+end_src
+
+   #+begin_quote
+Nota: para fins de documentação, foi presumido uso de sistema Linux com arquitetura AMD64, porém também há suporte para BSD's, macOS e Windows, com arquiteturas x86, ARM, ARM64, etc.. Tais opções podem ser encontradas [[https://github.com/aquasecurity/trivy/releases/tag/v0.53.0][clicando aqui]].
+   #+end_quote
+
+2. Extrair tarball
+   #+begin_src sh
+mkdir -p trivy && tar xvf trivy_0.53.0_*.tar.gz -C trivy/
+   #+end_src
+
+3. Habilitando permissão de execução
+   #+begin_src sh
+chmod +x trivy/trivy
+   #+end_src
+
+** Uso
+A fim de simplificar o uso da ferramenta, recomenda-se entrar no diretório no qual ela se encontra por meio do comando ~cd trivy~. Em caso de preferência por não mudar de diretório, basta acrescentar ~trivy/~ *no início de todos* os comandos abaixo (i.e., ~trivy help~ ficaria ~trivy/trivy help~).
+
+Dentre os inúmeros comandos e opções disponíveis, o que deve ser utilizado e documentado ([[#como-documentar][vide exemplo]]) é:
+
+*** ~image~
+#+begin_src sh
+trivy image imagem:tag
+#+end_src
+
+onde ~imagem~ é o nome da imagem utilizada e ~tag~ sua tag (obrigatória). Exemplo real (*não esquecer* das opções ~-f~ e ~-o~):
+
+#+begin_src sh
+trivy image -f table python:3.9.9-slim-buster
+
+trivy image -f json python:3.9.9-slim-buster
+
+trivy image -f table -o image_table.txt python:3.9.9-slim-buster && cat image_table.txt
+
+trivy image -f json -o image_json.json python:3.9.9-slim-buster && cat image_json.json
+#+end_src
+
+#+begin_quote
+Nota: o primeiro uso desse comando pode demorar em torno de 5 minutos devido ao download da base de dados das vulnerabilidades. Certifique-se de possuir pelo menos 1 GiB livre na máquina para armazená-la!
+#+end_quote
+
+Para mais detalhes desse comando, acesse [[https://aquasecurity.github.io/trivy/v0.53/docs/target/container_image/]].
+
+*** ~config~
+#+begin_src sh
+trivy config /caminho/para/o/diretorio
+#+end_src
+
+onde ~/caminho/para/o/diretorio~ é o caminho absoluto *ou* relativo até o diretório onde se encontra arquivos da infraestrutura/aplicação suportados, como Dockerfiles. Exemplo real (*não esquecer* das opções ~-f~ e ~-o~):
+
+#+begin_src sh
+trivy config -f table /home/sysb1n/docker-sec/cve-2017-12617/7.0.81/debian/12
+
+trivy config -f json /home/sysb1n/docker-sec/cve-2017-12617/7.0.81/debian/12
+
+trivy config -f table -o config_table.txt /home/sysb1n/docker-sec/cve-2017-12617/7.0.81/debian/12 && cat config_table.txt
+
+trivy config -f json -o config_json.json /home/sysb1n/docker-sec/cve-2017-12617/7.0.81/debian/12 && cat config_json.json
+#+end_src
+
+Para mais detalhes desse comando, acesse [[https://aquasecurity.github.io/trivy/v0.53/docs/scanner/misconfiguration/]].
+
+*** ~repository~
+#+begin_src sh
+trivy repository caminho_ou_url
+#+end_src
+
+onde ~caminho_ou_url~ pode ser tanto um caminho absoluto *ou* relativo até o diretório de um repositório, como o endereço web *completo* até um repositório *público* (repositórios web privados só são suportados por meio do uso de tokens de contas com acesso, [[https://aquasecurity.github.io/trivy/v0.53/docs/target/repository/#scanning-private-repositories][como descrito aqui]]). Exemplo real (*não esquecer* das opções ~-f~ e ~-o~):
+
+#+begin_src sh
+trivy repository -f table /home/sysb1n/docker-sec
+
+trivy repository -f json /home/sysb1n/docker-sec
+
+trivy repository -f table -o repository_table.txt /home/sysb1n/docker-sec && cat repository_table.txt
+
+trivy repository -f json -o repository_json.json /home/sysb1n/docker-sec && cat repository_json.json
+#+end_src
+
+Para mais detalhes desse comando, acesse [[https://aquasecurity.github.io/trivy/v0.53/docs/target/repository/]].
+
+** Como documentar (nota ao final!)
+:PROPERTIES:
+:CUSTOM_ID: como-documentar
+:END:
+A seguir, modelo de documentação usando, como exemplo, o comando ~image~ e opção ~-f table~ ("pacotes gerais" e "pacotes de linguagens de programação", respectivamente):
+
+[[file:screenshots/trivy_01.png]]
+[[file:screenshots/trivy_02.png]]
+
+#+begin_quote
+Nota: lembrar de utilizar terminal *em tela cheia, sem bordas, com fundo branco opaco e letras pretas* em *todas* as capturas de tela, além de executar o comando ~clear~ antes de cada uso do Trivy!
+#+end_quote
